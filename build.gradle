@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies"
+        }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:+"
+    }
+}
+
+//task buildSh (type: Exec) {
+//    commandLine "${projectDir.canonicalPath}/build.sh"
+//    workingDir projectDir . canonicalPath
+//}
+
+apply plugin: 'konan'
+
+konan.targets = ['macbook', 'linux']
+
+konanArtifacts {
+    interop('libcurl') {
+        target('linux') {
+            includeDirs.headerFilterOnly '/usr/include'
+        }
+        target('macbook') {
+            includeDirs.headerFilterOnly '/opt/local/include', '/usr/local/include'
+        }
+    }
+
+    program('twtr') {
+        libraries {
+            artifact 'libcurl'
+        }
+    }
+}
