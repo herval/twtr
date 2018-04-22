@@ -4,3 +4,5 @@ build/
 *.iml
 .DS_Store
 .project
+src/info.log
+info.log

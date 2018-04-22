@@ -55,6 +55,13 @@ func renderText(x int, y int, msg string) {
 	}
 }
 
+func renderTextHighlighted(x int, y int, msg string) {
+	for _, c := range msg {
+		termbox.SetCell(x, y, c, termbox.ColorBlack|termbox.AttrReverse, termbox.ColorDefault)
+		x++
+	}
+}
+
 func reverse(s string) string {
 	chars := []rune(s)
 	rev := make([]rune, 0, len(chars))

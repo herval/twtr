@@ -3,15 +3,27 @@ package main
 import "github.com/nsf/termbox-go"
 
 func main() {
+	InitLogger()
+	var client = NewClient()
+
+	var tweetList = NewTweetList()
+
 	var window = Window{
-		header: &DefaultHeader{},
-		body:   nil,
-		footer: nil,
+		header:     &DefaultHeader{Text: "h"},
+		body:       &tweetList,
+		footer:     &DefaultHeader{Text: "f"},
+		controller: nil,
 	}
 	window.Init()
 	defer window.Close()
 
-	window.Draw()
+	controller := TweetListController{
+		Window: &window,
+		View:   &tweetList,
+		Client: &client,
+	}
+	controller.Show()
+	client.Start()
 
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
@@ -20,23 +32,16 @@ func main() {
 				return
 			}
 
-			termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+			if window.controller != nil && window.controller.OnKeyPress(ev) {
+				window.Draw()
+			}
 
-			// TODO
-
-			termbox.Flush()
 		case termbox.EventResize:
-			termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-
 			window.Draw()
 
-			termbox.Flush()
 		case termbox.EventMouse:
-			termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+			// TODO mouse support?
 
-			// TODO
-
-			termbox.Flush()
 		case termbox.EventError:
 			panic(ev.Err)
 		}
