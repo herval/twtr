@@ -1,6 +1,22 @@
 package main
 
-import termbox "github.com/nsf/termbox-go"
+import (
+	termbox "github.com/nsf/termbox-go"
+	"time"
+	"fmt"
+)
+
+
+const (
+	TopLeftBorder      = 0x2554
+	TopRightBorder     = 0x2557
+	BottomLeftBorder   = 0x255A
+	BottomRightBorder  = 0x255D
+	LeftDividerBorder  = 0x2560
+	RightDividerBorder = 0x2563
+	HorizontalBorder   = 0x2550
+	VerticalLineBorder = 0x2551
+)
 
 type Area struct {
 	x0 int
@@ -15,6 +31,38 @@ func drawRepeat(startX int, endX int, startY int, endY int, char rune) {
 			draw(i, j, char)
 		}
 	}
+}
+
+func min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func splitText(text string, maxLineSize int) []string {
+	res := []string{}
+
+	i := 0
+	for len(text) > 0 {
+		l := text[0:min(maxLineSize, len(text))]
+		res = append(res, l)
+		i += maxLineSize
+		text = text[min(maxLineSize, len(text)):]
+	}
+
+	return res
+}
+
+func timeAgo(ts time.Time) string {
+	dur := time.Since(ts)
+	if dur.Minutes() < 60 {
+		return fmt.Sprintf("%dm", int(dur.Minutes()))
+	}
+	if dur.Hours() < 24 {
+		return fmt.Sprintf("%dh", int(dur.Hours()))
+	}
+	return fmt.Sprintf("%dd", int(dur.Hours()/24))
 }
 
 func draw(x int, y int, char rune) {
@@ -55,10 +103,14 @@ func renderText(x int, y int, msg string) {
 	}
 }
 
-func renderTextHighlighted(x int, y int, msg string) {
-	for _, c := range msg {
-		termbox.SetCell(x, y, c, termbox.ColorBlack|termbox.AttrReverse, termbox.ColorDefault)
-		x++
+func renderTextHighlighted(x int, y int, msg string, highlighted bool) {
+	if highlighted {
+		for _, c := range msg {
+			termbox.SetCell(x, y, c, termbox.ColorBlack|termbox.AttrReverse, termbox.ColorDefault)
+			x++
+		}
+	} else {
+		renderText(x, y, msg)
 	}
 }
 

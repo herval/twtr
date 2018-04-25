@@ -1,17 +1,34 @@
 package main
 
-import "github.com/nsf/termbox-go"
+import (
+	"fmt"
+	"github.com/nsf/termbox-go"
+	"os"
+)
 
 func main() {
 	InitLogger()
-	var client = NewClient()
 
-	var tweetList = NewTweetList()
+	config := LoadConfig()
+	client, err := NewClient(config)
+	if err != nil {
+		// TODO connect new account
+		panic(err)
+	}
 
-	var window = Window{
-		header:     &DefaultHeader{Text: "h"},
+	// user profile... for display and stuff
+	user, err := client.GetUser()
+	if err != nil {
+		fmt.Printf("Could not connect to Twitter API: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	tweetList := NewTweetList()
+
+	window := Window{
+		header:     &DefaultHeader{Text: user.Name},
 		body:       &tweetList,
-		footer:     &DefaultHeader{Text: "f"},
+		footer:     &TextArea{Text: "(N)ew Tweet | (R)eply | (F)avorite | (Q)uit"},
 		controller: nil,
 	}
 	window.Init()
@@ -20,7 +37,7 @@ func main() {
 	controller := TweetListController{
 		Window: &window,
 		View:   &tweetList,
-		Client: &client,
+		Client: client,
 	}
 	controller.Show()
 	client.Start()

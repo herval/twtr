@@ -1,13 +1,8 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"log"
-	"os"
 	"time"
 )
 
@@ -16,23 +11,19 @@ type Client struct {
 	client         *twitter.Client
 }
 
-func NewClient() Client {
-	flags := flag.NewFlagSet("user-auth", flag.ExitOnError)
-	consumerKey := flags.String("consumer-key", "", "Twitter Consumer Key")
-	consumerSecret := flags.String("consumer-secret", "", "Twitter Consumer Secret")
-	accessToken := flags.String("access-token", "", "Twitter Access Token")
-	accessSecret := flags.String("access-secret", "", "Twitter Access Secret")
-	flags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(flags, "TWITTER")
-
-	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
-		log.Fatal("Consumer key/secret and Access token/secret required")
+func NewClient(config *Config) (*Client, error) {
+	if config.ConsumerKey == "" || config.ConsumerSecret == "" {
+		return nil, ErrNoConsumerKey
 	}
 
-	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
-	token := oauth1.NewToken(*accessToken, *accessSecret)
+	if config.AccessToken == "" || config.AccessSecret == "" {
+		return nil, ErrNoAccessToken
+	}
+
+	conf := oauth1.NewConfig(config.ConsumerKey, config.ConsumerSecret)
+	token := oauth1.NewToken(config.AccessToken, config.AccessSecret)
 	// OAuth1 http.Client will automatically authorize Requests
-	httpClient := config.Client(oauth1.NoContext, token)
+	httpClient := conf.Client(oauth1.NoContext, token)
 
 	// TODO signin
 
@@ -41,7 +32,7 @@ func NewClient() Client {
 		TimelineTweets: make(chan twitter.Tweet, 100),
 		client:         twitter.NewClient(httpClient),
 	}
-	return c
+	return &c, nil
 }
 
 func (c *Client) Start() {
@@ -57,15 +48,29 @@ func (c *Client) Start() {
 					c.TimelineTweets <- t
 				}
 			}
-			time.Sleep(10 * time.Second)
+			time.Sleep(60 * time.Second)
 		}
 	}()
+}
+
+func (c *Client) GetUser() (*twitter.User, error) {
+	verifyParams := &twitter.AccountVerifyParams{
+		SkipStatus:   twitter.Bool(true),
+		IncludeEmail: twitter.Bool(true),
+	}
+
+	user, _, err := c.client.Accounts.VerifyCredentials(verifyParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (c *Client) GetTimeline() ([]twitter.Tweet, error) {
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
-		Count:     2,
+		Count:     20,
 		TweetMode: "extended",
 	}
 	tweets, _, err := c.client.Timelines.HomeTimeline(homeTimelineParams)

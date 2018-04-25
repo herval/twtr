@@ -5,16 +5,6 @@ import (
 	"time"
 )
 
-const (
-	TopLeftBorder      = 0x2554
-	TopRightBorder     = 0x2557
-	BottomLeftBorder   = 0x255A
-	BottomRightBorder  = 0x255D
-	LeftDividerBorder  = 0x2560
-	RightDividerBorder = 0x2563
-	HorizontalBorder   = 0x2550
-	VerticalLineBorder = 0x2551
-)
 
 type Window struct {
 	header         Section

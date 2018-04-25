@@ -2,4 +2,5 @@
 
 export $(cat env | xargs)
 cd src
-go run *.go
+go build -o twtr .
+./twtr

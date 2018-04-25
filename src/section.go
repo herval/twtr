@@ -1,11 +1,17 @@
 package main
 
-import "github.com/dghubble/go-twitter/twitter"
+import (
+	"github.com/dghubble/go-twitter/twitter"
+	"strings"
+	"fmt"
+)
 
 type Section interface {
 	Draw(area Area)
 	MinHeight(windowWidth int, windowHeigh int) int
 }
+
+// ---------------------------
 
 type DefaultHeader struct {
 	Text string
@@ -19,6 +25,8 @@ func (h *DefaultHeader) Draw(area Area) {
 func (h *DefaultHeader) MinHeight(windowWidth int, windowHeigh int) int {
 	return 1
 }
+
+// ---------------------------
 
 type TweetList struct {
 	Window        *Window
@@ -68,17 +76,48 @@ func (h *TweetList) Draw(area Area) {
 		if y >= area.y1 {
 			return
 		}
+		highlighted := i == h.SelectedIndex
 
-		if h.SelectedIndex == i {
-			renderTextHighlighted(area.x0, y, t.FullText)
-		} else {
-			renderText(area.x0, y, t.FullText)
+		ts, _ := t.CreatedAtTime()
+
+		renderTextHighlighted(area.x0, y, fmt.Sprintf("@%s · %s", t.User.ScreenName, timeAgo(ts)), highlighted)
+		y += 1
+		if y >= area.y1 {
+			return
 		}
+
+		textLines := splitText(t.FullText, area.x1-area.x0)
+		for _, l := range textLines {
+			renderTextHighlighted(area.x0, y, strings.TrimLeft(l, " "), highlighted)
+			y += 1
+			if y >= area.y1 {
+				return
+			}
+		}
+
+		drawRepeat(area.x0, area.x1, y, y, '-')
 		y += 1
 	}
 
 }
 
 func (t *TweetList) MinHeight(windowWidth int, windowHeigh int) int {
+	return -1
+}
+
+// ---------------------------
+
+type TextArea struct {
+	Window *Window
+	Text   string
+}
+
+func (h *TextArea) Draw(area Area) {
+	renderText(area.x0, area.y0, h.Text)
+}
+
+func (h *TextArea) MinHeight(windowWidth int, windowHeigh int) int {
 	return 1
 }
+
+// ---------------------------
