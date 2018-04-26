@@ -1,11 +1,10 @@
 package main
 
 import (
-	termbox "github.com/nsf/termbox-go"
+	"github.com/nsf/termbox-go"
 	"time"
 	"fmt"
 )
-
 
 const (
 	TopLeftBorder      = 0x2554
@@ -25,12 +24,24 @@ type Area struct {
 	y1 int
 }
 
+type Dimensions struct {
+	width  int
+	height int
+}
+
 func drawRepeat(startX int, endX int, startY int, endY int, char rune) {
 	for i := startX; i <= endX; i++ {
 		for j := startY; j <= endY; j++ {
 			draw(i, j, char)
 		}
 	}
+}
+
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func min(a int, b int) int {

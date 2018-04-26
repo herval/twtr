@@ -28,7 +28,7 @@ func main() {
 	window := Window{
 		header:     &DefaultHeader{Text: user.Name},
 		body:       &tweetList,
-		footer:     &TextArea{Text: "(N)ew Tweet | (R)eply | (F)avorite | (Q)uit"},
+		footer:     &TextArea{Text: "(N)ew Tweet | (R)eply | (F)avorite | R(e)fresh | (Q)uit"},
 		controller: nil,
 	}
 	window.Init()

@@ -19,9 +19,9 @@ Compile and run with `./run.sh`
 
 
 ## To do
-
 - Dark/light color schemes
 - Save creds on file
+- Show favorited/retweeted icons
 - Scroll on timeline
 - select tweet w/ arrows
 - tab to select links & mentions

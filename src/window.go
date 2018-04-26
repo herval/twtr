@@ -73,10 +73,15 @@ func (f *Window) Draw() {
 
 	renderFrame(width, height)
 
-	var nextY = 0
+	nextY := 0
+
+	frame := &Dimensions{
+		width: width,
+		height: height,
+	}
 
 	if f.header != nil {
-		var headerEnd = f.header.MinHeight(width, height) + nextY + 1
+		var headerEnd = f.header.MinHeight(frame) + nextY + 1
 		f.header.Draw(Area{
 			x0: 2,
 			x1: width - 2,
@@ -91,11 +96,11 @@ func (f *Window) Draw() {
 	if f.body != nil {
 		var bodyEnd = height - 1
 		if f.footer != nil {
-			bodyEnd = height - f.footer.MinHeight(width, height) - 2
+			bodyEnd = height - f.footer.MinHeight(frame) - 2
 		}
 
 		f.body.Draw(Area{
-			x0: 2,
+			x0: 1,
 			x1: width - 2,
 			y0: nextY,
 			y1: bodyEnd,
@@ -105,7 +110,7 @@ func (f *Window) Draw() {
 	}
 
 	if f.footer != nil {
-		footerTop := height - f.footer.MinHeight(width, height) - 1
+		footerTop := height - f.footer.MinHeight(frame) - 1
 
 		f.footer.Draw(Area{
 			x0: 2,
