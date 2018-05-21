@@ -38,19 +38,24 @@ func NewClient(config *Config) (*Client, error) {
 func (c *Client) Start() {
 	go func() {
 		for {
-			tweets, err := c.GetTimeline()
-			if err != nil {
-				// TODO fail softer?
-				Log.Println("Api error! ", err)
-			} else {
-				for _, t := range tweets {
-					Log.Printf("Got Tweet:", t)
-					c.TimelineTweets <- t
-				}
-			}
+			c.LoadTimeline()
 			time.Sleep(60 * time.Second)
 		}
 	}()
+}
+
+// load the user timeline and post it on the Timelines chan
+func (c *Client) LoadTimeline() {
+	tweets, err := c.GetTimeline()
+	if err != nil {
+		// TODO fail softer?
+		Log.Println("Api error! ", err)
+	} else {
+		for _, t := range tweets {
+			//Log.Printf("Got Tweet:", t)
+			c.TimelineTweets <- t
+		}
+	}
 }
 
 func (c *Client) GetUser() (*twitter.User, error) {

@@ -9,7 +9,11 @@ import (
 func main() {
 	InitLogger()
 
-	config := LoadConfig()
+	config, err := LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+
 	client, err := NewClient(config)
 	if err != nil {
 		// TODO connect new account
@@ -45,12 +49,15 @@ func main() {
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if ev.Key == termbox.KeyCtrlQ {
-				return
-			}
-
-			if window.controller != nil && window.controller.OnKeyPress(ev) {
-				window.Draw()
+			if window.controller != nil {
+				switch window.controller.OnKeyPress(ev) {
+				case Noop:
+					// nothing
+				case RedrawRequired:
+					window.Draw()
+				case ExitRequested:
+					return
+				}
 			}
 
 		case termbox.EventResize:
@@ -63,4 +70,6 @@ func main() {
 			panic(ev.Err)
 		}
 	}
+
+	fmt.Printf("Bye! 👋🐦")
 }

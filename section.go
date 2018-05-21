@@ -56,6 +56,10 @@ func (t *Tweet) Draw(area Area) {
 	}
 
 	drawRepeat(area.x0+1, area.x1-1, y, y, '-')
+	if y >= area.y1 {
+		return
+	}
+
 	t.FullyVisible = true // items that aren't fully visible won't get this set so we can scroll when selecting them
 }
 
@@ -78,6 +82,12 @@ func NewTweetList() TweetList {
 		SelectedIndex: 0,
 		ScrollOffset:  0,
 	}
+}
+
+func (h *TweetList) Clear() {
+	h.Tweets = []*Tweet{}
+	h.SelectedIndex = 0
+	h.ScrollOffset = 0
 }
 
 func (h *TweetList) AddTweet(t *twitter.Tweet) {
@@ -157,8 +167,7 @@ func (h *TweetList) Draw(area Area) {
 		t.Draw(availableArea)
 
 		yOffset := t.MinHeight(availableSpace)
-		availableArea.y0 += yOffset
-		availableArea.y1 += yOffset
+		availableArea.y0 += yOffset // move the available space upper bound down by one tweet
 	}
 
 }
