@@ -40,7 +40,29 @@ func (t *Tweet) Draw(area Area) {
 
 	ts, _ := t.Content.CreatedAtTime()
 
-	renderTextHighlighted(area.x0+1, y, fmt.Sprintf("@%s · %s", t.Content.User.ScreenName, timeAgo(ts)), t.Highlighted)
+	headerText := fmt.Sprintf("@%s · %s", t.Content.User.ScreenName, timeAgo(ts))
+
+	additionals := []string{}
+	if t.Content.RetweetCount > 0 {
+		additionals = append(
+			additionals,
+			fmt.Sprintf("🔁%d", t.Content.RetweetCount),
+		)
+	}
+	if t.Content.FavoriteCount > 0 {
+		additionals = append(
+			additionals,
+			fmt.Sprintf("⭐%d️", t.Content.FavoriteCount),
+		)
+	}
+	if len(additionals) > 0 {
+		for _, txt := range additionals {
+			headerText += " · " + txt
+		}
+		headerText += " "
+	}
+
+	renderTextHighlighted(area.x0+1, y, headerText, t.Highlighted)
 	y += 1
 	if y >= area.y1 {
 		return
@@ -155,7 +177,7 @@ func (h *TweetList) Draw(area Area) {
 		if availableArea.y0 >= area.y1 { // no more space to render anything
 			return
 		}
-		if (i+h.ScrollOffset) == h.SelectedIndex {
+		if (i + h.ScrollOffset) == h.SelectedIndex {
 			t.Highlighted = true
 		}
 
