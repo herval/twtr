@@ -1,10 +1,11 @@
-package main
+package api
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/boltdb/bolt"
 	"encoding/json"
 	"time"
+	"github.com/herval/twtr/internal/util"
 )
 
 type CachedClient struct {
@@ -32,7 +33,7 @@ func (c *CachedClient) Finish() {
 
 func saveTweets(db *bolt.DB, collection string, tweets *TweetSet) error {
 	return db.Update(func(tx *bolt.Tx) error {
-		Log.Printf("Saving %d Tweets to %s", len(tweets.Tweets), collection)
+		util.Log.Printf("Saving %d Tweets to %s", len(tweets.Tweets), collection)
 		// store sets of tweets....
 		b, err := tx.CreateBucketIfNotExists([]byte("tweets"))
 		if err != nil {
@@ -75,7 +76,7 @@ func (c *CachedClient) GetTimeline() (*TweetSet, error) {
 	}
 
 	if t == nil || isExpired(t.UpdatedAt) {
-		Log.Println("Cached timeline expired, refetching")
+		util.Log.Println("Cached timeline expired, refetching")
 		fetched, err := c.client.GetTimeline()
 		if err != nil {
 			return nil, err

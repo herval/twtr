@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	termbox "github.com/nsf/termbox-go"
@@ -7,23 +7,23 @@ import (
 
 
 type Window struct {
-	header         Section
-	body           Section
-	footer         Section
-	controller     Controller
-	pendingRefresh []Section
+	Header         Section
+	Body           Section
+	Footer         Section
+	Controller     Controller
+	PendingRefresh []Section
 }
 
 func (w *Window) ScheduleRefresh(s Section) {
-	w.pendingRefresh = uniq(append(w.pendingRefresh, s))
+	w.PendingRefresh = uniq(append(w.PendingRefresh, s))
 }
 
 func startRefresher(w *Window) {
 	go func() {
 		for {
-			if len(w.pendingRefresh) > 0 {
+			if len(w.PendingRefresh) > 0 {
 				w.Draw()
-				w.pendingRefresh = []Section{}
+				w.PendingRefresh = []Section{}
 			}
 			time.Sleep(1 * time.Second)
 		}
@@ -43,7 +43,7 @@ func (f *Window) Init() {
 }
 
 func (w *Window) SetBody(s Section) {
-	w.body = s
+	w.Body = s
 	w.ScheduleRefresh(s)
 }
 
@@ -64,7 +64,7 @@ func uniq(sections []Section) []Section {
 }
 
 func (f *Window) Draw() {
-	f.pendingRefresh = []Section{}
+	f.PendingRefresh = []Section{}
 
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
@@ -80,9 +80,9 @@ func (f *Window) Draw() {
 		height: height,
 	}
 
-	if f.header != nil {
-		var headerEnd = f.header.MinHeight(frame) + nextY + 1
-		f.header.Draw(Area{
+	if f.Header != nil {
+		var headerEnd = f.Header.MinHeight(frame) + nextY + 1
+		f.Header.Draw(Area{
 			x0: 2,
 			x1: width - 2,
 			y0: nextY + 1,
@@ -93,13 +93,13 @@ func (f *Window) Draw() {
 	}
 
 	// body takes all available space
-	if f.body != nil {
+	if f.Body != nil {
 		var bodyEnd = height - 1
-		if f.footer != nil {
-			bodyEnd = height - f.footer.MinHeight(frame) - 2
+		if f.Footer != nil {
+			bodyEnd = height - f.Footer.MinHeight(frame) - 2
 		}
 
-		f.body.Draw(Area{
+		f.Body.Draw(Area{
 			x0: 1,
 			x1: width - 2,
 			y0: nextY,
@@ -109,10 +109,10 @@ func (f *Window) Draw() {
 		renderDivider(width, height, bodyEnd)
 	}
 
-	if f.footer != nil {
-		footerTop := height - f.footer.MinHeight(frame) - 1
+	if f.Footer != nil {
+		footerTop := height - f.Footer.MinHeight(frame) - 1
 
-		f.footer.Draw(Area{
+		f.Footer.Draw(Area{
 			x0: 2,
 			x1: width - 2,
 			y0: footerTop,

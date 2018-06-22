@@ -1,22 +1,23 @@
-package main
+package api
 
 import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"time"
+	"github.com/herval/twtr/internal/util"
 )
 
 type ApiClient struct {
 	client         *twitter.Client
 }
 
-func NewApiClient(config *Config) (Client, error) {
+func NewApiClient(config *util.Config) (Client, error) {
 	if config.ConsumerKey == "" || config.ConsumerSecret == "" {
-		return nil, ErrNoConsumerKey
+		return nil, util.ErrNoConsumerKey
 	}
 
 	if config.AccessToken == "" || config.AccessSecret == "" {
-		return nil, ErrNoAccessToken
+		return nil, util.ErrNoAccessToken
 	}
 
 	conf := oauth1.NewConfig(config.ConsumerKey, config.ConsumerSecret)

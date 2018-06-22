@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -ex
 export $(cat env | xargs)
-go build -o twtr .
+./build.sh
 ./twtr

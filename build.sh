@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-go build -o twtr
+set -ex
+go build -o twtr cmd/twtr/main.go

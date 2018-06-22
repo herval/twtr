@@ -1,8 +1,10 @@
-package main
+package ui
 
 import (
 	"github.com/nsf/termbox-go"
 	"time"
+	"github.com/herval/twtr/internal/api"
+	"github.com/herval/twtr/internal/util"
 )
 
 type EventResult int
@@ -21,7 +23,7 @@ type Controller interface {
 type TweetListController struct {
 	Window *Window
 	View   *TweetList
-	Client Client
+	Client api.Client
 }
 
 func (t *TweetListController) Show() {
@@ -32,14 +34,14 @@ func (t *TweetListController) Show() {
 		}
 	}()
 
-	t.Window.controller = t
+	t.Window.Controller = t
 	t.Window.SetBody(t.View)
 }
 
 func refreshTweets(t *TweetListController) {
 	tweets, err := t.Client.GetTimeline()
 	if err != nil {
-		Log.Println(err)
+		util.Log.Println(err)
 
 	} else {
 		refresh := false
