@@ -102,26 +102,41 @@ func renderTextRightJustified(xEnd int, yEnd int, msg string) {
 	x := xEnd
 	y := yEnd
 	for _, c := range reverse(msg) {
+
 		termbox.SetCell(x, y, c, termbox.ColorBlack, termbox.ColorDefault)
 		x--
 	}
 }
 
-func renderText(x int, y int, msg string) {
+// render and move the cursor
+func renderText(x int, y int, msg string, highlighted bool) int {
+	color := termbox.ColorBlack
+	if highlighted {
+		color |= termbox.AttrReverse
+	}
+
 	for _, c := range msg {
-		termbox.SetCell(x, y, c, termbox.ColorBlack, termbox.ColorDefault)
+		termbox.SetCell(x, y, c, color, termbox.ColorDefault)
 		x++
 	}
+
+	return x
 }
 
-func renderTextHighlighted(x int, y int, msg string, highlighted bool) {
+func renderTextHighlighted(x0 int, xn int, y int, msg string, highlighted bool) {
+	x := x0
 	if highlighted {
-		for _, c := range msg {
-			termbox.SetCell(x, y, c, termbox.ColorBlack|termbox.AttrReverse, termbox.ColorDefault)
+		x = renderText(x, y, msg, true)
+		for x < xn {
+			termbox.SetCell(x, y, ' ', termbox.ColorBlack|termbox.AttrReverse, termbox.ColorDefault)
 			x++
 		}
 	} else {
-		renderText(x, y, msg)
+		x = renderText(x, y, msg, false)
+		for x < xn {
+			termbox.SetCell(x, y, ' ', termbox.ColorBlack, termbox.ColorDefault)
+			x++
+		}
 	}
 }
 

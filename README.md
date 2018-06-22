@@ -28,3 +28,5 @@ Compile and run with `./run.sh`
 - enter to open tweet + show replies
 - display images https://github.com/ichinaski/pxl
 - ? for help
+- Pad right w/ empty space
+- add space to the right of emoji for utf-16 chars

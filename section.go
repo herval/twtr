@@ -18,7 +18,7 @@ type DefaultHeader struct {
 }
 
 func (h *DefaultHeader) Draw(area Area) {
-	renderText(area.x0, area.y0, "TWTR")
+	renderText(area.x0, area.y0, "TWTR", false)
 	renderTextRightJustified(area.x1-1, area.y0, h.Text)
 }
 
@@ -62,7 +62,7 @@ func (t *Tweet) Draw(area Area) {
 		headerText += " "
 	}
 
-	renderTextHighlighted(area.x0+1, y, headerText, t.Highlighted)
+	renderTextHighlighted(area.x0+1, area.x1, y, headerText, t.Highlighted)
 	y += 1
 	if y >= area.y1 {
 		return
@@ -73,7 +73,7 @@ func (t *Tweet) Draw(area Area) {
 		if y >= area.y1 {
 			return
 		}
-		renderTextHighlighted(area.x0+1, y, strings.TrimLeft(l, " "), t.Highlighted)
+		renderTextHighlighted(area.x0+1, area.x1, y, strings.TrimLeft(l, " "), t.Highlighted)
 		y += 1
 	}
 
@@ -214,7 +214,7 @@ type TextArea struct {
 }
 
 func (h *TextArea) Draw(area Area) {
-	renderText(area.x0, area.y0, h.Text)
+	renderText(area.x0, area.y0, h.Text, false)
 }
 
 func (h *TextArea) MinHeight(containerDimensions *Dimensions) int {
