@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/nsf/termbox-go"
-	"os"
 )
 
 func main() {
@@ -11,20 +10,24 @@ func main() {
 
 	config, err := LoadConfig()
 	if err != nil {
-		panic(err)
+		Log.Fatal(err)
 	}
 
-	client, err := NewClient(config)
+	api, err := NewApiClient(config)
+	if err != nil {
+		Log.Fatal(err)
+	}
+
+	client, err := NewCachedClient(api)
 	if err != nil {
 		// TODO connect new account
-		panic(err)
+		Log.Fatal(err)
 	}
 
 	// user profile... for display and stuff
 	user, err := client.GetUser()
 	if err != nil {
-		fmt.Printf("Could not connect to Twitter API: %s\n", err.Error())
-		os.Exit(1)
+		Log.Fatal("Could not connect to Twitter API: %s\n", err.Error())
 	}
 
 	tweetList := NewTweetList()
@@ -37,6 +40,7 @@ func main() {
 	}
 	window.Init()
 	defer window.Close()
+	defer client.Finish()
 
 	controller := TweetListController{
 		Window: &window,
@@ -44,7 +48,6 @@ func main() {
 		Client: client,
 	}
 	controller.Show()
-	client.Start()
 
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
@@ -67,7 +70,7 @@ func main() {
 			// TODO mouse support?
 
 		case termbox.EventError:
-			panic(ev.Err)
+			Log.Fatal(ev.Err)
 		}
 	}
 

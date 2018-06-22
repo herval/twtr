@@ -1,6 +1,9 @@
 package main
 
-import "github.com/nsf/termbox-go"
+import (
+	"github.com/nsf/termbox-go"
+	"time"
+)
 
 type EventResult int
 
@@ -18,17 +21,14 @@ type Controller interface {
 type TweetListController struct {
 	Window *Window
 	View   *TweetList
-	Client *Client
+	Client Client
 }
 
 func (t *TweetListController) Show() {
 	go func() {
 		for {
-			select {
-			case tweet := <-t.Client.TimelineTweets:
-				t.View.AddTweet(&tweet)
-				t.Window.ScheduleRefresh(t.View)
-			}
+			refreshTweets(t)
+			time.Sleep(60 * time.Second)
 		}
 	}()
 
@@ -36,11 +36,29 @@ func (t *TweetListController) Show() {
 	t.Window.SetBody(t.View)
 }
 
+func refreshTweets(t *TweetListController) {
+	tweets, err := t.Client.GetTimeline()
+	if err != nil {
+		Log.Println(err)
+
+	} else {
+		refresh := false
+		for _, tweet := range tweets.Tweets {
+			refresh = t.View.AddTweet(tweet) || refresh
+		}
+
+		if refresh {
+			//Log.Println("Refreshing...")
+			t.Window.ScheduleRefresh(t.View)
+		}
+	}
+}
+
 func (t *TweetListController) OnKeyPress(key termbox.Event) EventResult {
 	switch key.Ch {
 	case 'e':
 		t.View.Clear()
-		t.Client.LoadTimeline()
+		refreshTweets(t)
 		return RedrawRequired
 
 	case 'Q':

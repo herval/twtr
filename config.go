@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/coreos/pkg/flagutil"
-	"log"
 	"os"
 	"path/filepath"
 	"fmt"
@@ -33,7 +32,7 @@ func LoadConfig() (*Config, error) {
 	envFile := fmt.Sprint("%s/%s", dir, "env")
 
 	if _, err := os.Stat(envFile); os.IsNotExist(err) {
-		log.Print("No env file found")
+		Log.Println("No env file found")
 		flagutil.SetFlagsFromEnv(flags, "TWITTER")
 	} else {
 		flagutil.SetFlagsFromEnvFile(flags, "TWITTER", envFile)

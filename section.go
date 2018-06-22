@@ -112,20 +112,23 @@ func (h *TweetList) Clear() {
 	h.ScrollOffset = 0
 }
 
-func (h *TweetList) AddTweet(t *twitter.Tweet) {
+func (h *TweetList) AddTweet(t twitter.Tweet) bool {
 	if !contains(h.Tweets, t) {
 		h.Tweets = append(
 			h.Tweets,
 			&Tweet{
-				Content:      t,
+				Content:      &t,
 				Highlighted:  false,
 				FullyVisible: false,
 			},
 		)
+		return true
 	}
+
+	return false
 }
 
-func contains(t []*Tweet, n *twitter.Tweet) bool {
+func contains(t []*Tweet, n twitter.Tweet) bool {
 	for _, e := range t {
 		if e.Content.IDStr == n.IDStr {
 			return true
