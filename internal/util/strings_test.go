@@ -1,4 +1,4 @@
-package ui
+package util
 
 import (
 	"testing"
@@ -16,11 +16,11 @@ func TestSplitText(t *testing.T) {
 }
 
 func TestTimeAgo(t *testing.T) {
-	if timeAgo(time.Now().Add(-10 * time.Minute).Local())!= "10m" {
+	if timeAgo(time.Now().Add(-10*time.Minute).Local()) != "10m" {
 		t.Fail()
 	}
 
-	if timeAgo(time.Now().Add(-1 * time.Hour).Local())!= "1h" {
+	if timeAgo(time.Now().Add(-1*time.Hour).Local()) != "1h" {
 		t.Fail()
 	}
 }

@@ -2,8 +2,6 @@ package ui
 
 import (
 	"github.com/nsf/termbox-go"
-	"time"
-	"fmt"
 )
 
 const (
@@ -18,15 +16,15 @@ const (
 )
 
 type Area struct {
-	x0 int
-	x1 int
-	y0 int
-	y1 int
+	X0 int
+	X1 int
+	Y0 int
+	Y1 int
 }
 
 type Dimensions struct {
-	width  int
-	height int
+	Width  int
+	Height int
 }
 
 func drawRepeat(startX int, endX int, startY int, endY int, char rune) {
@@ -35,45 +33,6 @@ func drawRepeat(startX int, endX int, startY int, endY int, char rune) {
 			draw(i, j, char)
 		}
 	}
-}
-
-func max(a int, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a int, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func splitText(text string, maxLineSize int) []string {
-	res := []string{}
-
-	i := 0
-	for len(text) > 0 {
-		l := text[0:min(maxLineSize, len(text))]
-		res = append(res, l)
-		i += maxLineSize
-		text = text[min(maxLineSize, len(text)):]
-	}
-
-	return res
-}
-
-func timeAgo(ts time.Time) string {
-	dur := time.Since(ts)
-	if dur.Minutes() < 60 {
-		return fmt.Sprintf("%dm", int(dur.Minutes()))
-	}
-	if dur.Hours() < 24 {
-		return fmt.Sprintf("%dh", int(dur.Hours()))
-	}
-	return fmt.Sprintf("%dd", int(dur.Hours()/24))
 }
 
 func draw(x int, y int, char rune) {

@@ -1,33 +1,37 @@
 package ui
 
 import (
-	termbox "github.com/nsf/termbox-go"
 	"time"
+
+	termbox "github.com/nsf/termbox-go"
 )
 
-
 type Window struct {
-	Header         Section
-	Body           Section
-	Footer         Section
-	Controller     Controller
-	PendingRefresh []Section
+	Header         View
+	Body           View
+	Footer         View
+	controller     Controller
+	pendingRefresh []View
 }
 
-func (w *Window) ScheduleRefresh(s Section) {
-	w.PendingRefresh = uniq(append(w.PendingRefresh, s))
+func (w *Window) ScheduleRefresh(s View) {
+	w.pendingRefresh = uniq(append(w.pendingRefresh, s))
 }
 
 func startRefresher(w *Window) {
 	go func() {
 		for {
-			if len(w.PendingRefresh) > 0 {
+			if len(w.pendingRefresh) > 0 {
 				w.Draw()
-				w.PendingRefresh = []Section{}
+				w.pendingRefresh = []View{}
 			}
 			time.Sleep(1 * time.Second)
 		}
 	}()
+}
+
+func (w *Window) CurrentController() Controller {
+	return w.controller
 }
 
 func (f *Window) Init() {
@@ -42,19 +46,21 @@ func (f *Window) Init() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 }
 
-func (w *Window) SetBody(s Section) {
-	w.Body = s
-	w.ScheduleRefresh(s)
+func (w *Window) Push(c Controller) {
+	w.controller = c
+	w.Body = c.Body()
+	w.ScheduleRefresh(w.Body)
+	c.OnShow()
 }
 
 func (f *Window) Close() {
 	termbox.Close()
 }
 
-func uniq(sections []Section) []Section {
-	keys := make(map[Section]bool)
-	list := []Section{}
-	for _, entry := range sections {
+func uniq(Views []View) []View {
+	keys := make(map[View]bool)
+	list := []View{}
+	for _, entry := range Views {
 		if _, value := keys[entry]; !value {
 			keys[entry] = true
 			list = append(list, entry)
@@ -64,29 +70,29 @@ func uniq(sections []Section) []Section {
 }
 
 func (f *Window) Draw() {
-	f.PendingRefresh = []Section{}
+	f.pendingRefresh = []View{}
 
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
 	// TODO draw header, body and footer
-	var width, height = termbox.Size()
+	width, height := termbox.Size()
 
 	renderFrame(width, height)
 
 	nextY := 0
 
 	frame := &Dimensions{
-		width: width,
-		height: height,
+		Width:  width,
+		Height: height,
 	}
 
 	if f.Header != nil {
 		var headerEnd = f.Header.MinHeight(frame) + nextY + 1
 		f.Header.Draw(Area{
-			x0: 2,
-			x1: width - 2,
-			y0: nextY + 1,
-			y1: headerEnd,
+			X0: 2,
+			X1: width - 2,
+			Y0: nextY + 1,
+			Y1: headerEnd,
 		})
 		nextY = headerEnd + 1
 		renderDivider(width, height, headerEnd)
@@ -100,10 +106,10 @@ func (f *Window) Draw() {
 		}
 
 		f.Body.Draw(Area{
-			x0: 1,
-			x1: width - 2,
-			y0: nextY,
-			y1: bodyEnd,
+			X0: 1,
+			X1: width - 2,
+			Y0: nextY,
+			Y1: bodyEnd,
 		})
 		nextY = bodyEnd + 1
 		renderDivider(width, height, bodyEnd)
@@ -113,10 +119,10 @@ func (f *Window) Draw() {
 		footerTop := height - f.Footer.MinHeight(frame) - 1
 
 		f.Footer.Draw(Area{
-			x0: 2,
-			x1: width - 2,
-			y0: footerTop,
-			y1: height - 1,
+			X0: 2,
+			X1: width - 2,
+			Y0: footerTop,
+			Y1: height - 1,
 		})
 	}
 

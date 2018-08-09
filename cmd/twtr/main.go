@@ -1,12 +1,13 @@
 package main
 
-import 	(
+import (
 	"fmt"
-	"github.com/nsf/termbox-go"
-	"github.com/herval/twtr/internal/api"
-	"github.com/herval/twtr/internal/util"
-	"github.com/herval/twtr/internal/ui"
 
+	"github.com/herval/twtr/internal/api"
+	"github.com/herval/twtr/internal/ui"
+	"github.com/herval/twtr/internal/ui/tweet_list"
+	"github.com/herval/twtr/internal/util"
+	"github.com/nsf/termbox-go"
 )
 
 func main() {
@@ -34,30 +35,23 @@ func main() {
 		util.Log.Fatal("Could not connect to Twitter API: %s\n", err.Error())
 	}
 
-	tweetList := ui.NewTweetList()
-
 	window := ui.Window{
-		Header:     &ui.DefaultHeader{Text: user.Name},
-		Body:       &tweetList,
-		Footer:     &ui.TextArea{Text: "(N)ew Tweet | (R)eply | (F)avorite | R(e)fresh | (Q)uit"},
-		Controller: nil,
+		Header: &ui.DefaultHeader{Text: user.Name},
+		Footer: &ui.TextArea{Text: "(N)ew Tweet | (R)eply | (F)avorite | R(e)fresh | (Q)uit"},
 	}
 	window.Init()
 	defer window.Close()
 	defer client.Finish()
 
-	controller := ui.TweetListController{
-		Window: &window,
-		View:   &tweetList,
-		Client: client,
-	}
-	controller.Show()
+	window.Push(
+		tweet_list.NewTweetListController(&window, client),
+	)
 
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if window.Controller != nil {
-				switch window.Controller.OnKeyPress(ev) {
+			if window.CurrentController() != nil {
+				switch window.CurrentController().OnKeyPress(ev) {
 				case ui.Noop:
 					// nothing
 				case ui.RedrawRequired:
