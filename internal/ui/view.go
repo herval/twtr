@@ -32,7 +32,6 @@ func (h *DefaultHeader) MinHeight(containerDimensions *Dimensions) int {
 // ---------------------------
 
 type Tweet struct {
-	Window       *Window
 	Content      *twitter.Tweet
 	Highlighted  bool
 	FullyVisible bool
@@ -95,8 +94,7 @@ func (t *Tweet) MinHeight(containerDimensions *Dimensions) int {
 // ---------------------------
 
 type TextArea struct {
-	Window *Window
-	Text   string
+	Text string
 }
 
 func (h *TextArea) Draw(area Area) {

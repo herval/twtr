@@ -71,7 +71,7 @@ func (t *TweetListController) OnKeyPress(key termbox.Event) ui.EventResult {
 	case termbox.KeyEnter:
 		tweet := t.View.SelectedTweet()
 		t.Window.Push(
-			tweet_view.NewTweetViewController(tweet.Content, t.Window, t.Client),
+			tweet_view.NewTweetViewController(tweet.Content, t.Window, t.Client, t),
 		)
 		return ui.RedrawRequired
 
